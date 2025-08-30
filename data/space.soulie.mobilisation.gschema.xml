@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="mobilisation">
+	<schema id="space.soulie.mobilisation" path="/space/soulie/mobilisation/">
+	</schema>
+</schemalist>

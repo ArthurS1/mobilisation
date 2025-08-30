@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=mobilisation
+Exec=mobilisation
+Icon=space.soulie.mobilisation
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

@@ -1,0 +1,6 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/space.soulie.mobilisation.desktop.in
+data/space.soulie.mobilisation.metainfo.xml.in
+data/space.soulie.mobilisation.gschema.xml
+src/window.ui
