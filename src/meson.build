@@ -54,3 +54,20 @@ cargo_build = custom_target(
     cargo_opt, '&&', 'cp', 'src' / rust_target / meson.project_name(), '@OUTPUT@',
   ]
 )
+
+test_exe = meson.project_build_root() / 'target' / 'debug' / 'deps' / 'mobilisation-904ead67dfcf5cd2'
+
+cargo_test = custom_target(
+  'cargo-test',
+  build_always_stale: true,
+  build_by_default: true,
+  console: true,
+  output: 'dummy-file-to-replace',
+  command: [
+    'env', cargo_env,
+    cargo_bin, 'test',
+    cargo_opt,
+  ]
+)
+
+test('unit tests', cargo_bin, args: ['test'], depends: cargo_test)
