@@ -60,7 +60,6 @@ test_exe = meson.project_build_root() / 'target' / 'debug' / 'deps' / 'mobilisat
 cargo_test = custom_target(
   'cargo-test',
   build_always_stale: true,
-  build_by_default: true,
   console: true,
   output: 'dummy-file-to-replace',
   command: [
