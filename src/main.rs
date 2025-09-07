@@ -18,6 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+mod domain;
 mod application;
 mod config;
 mod window;
@@ -30,10 +31,7 @@ use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
 use gtk::{gio, glib};
 use gtk::prelude::*;
 
-mod api;
-
 fn main() -> glib::ExitCode {
-    api::add(1, 2);
     // Set up gettext translations
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Unable to bind the text domain");
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8")

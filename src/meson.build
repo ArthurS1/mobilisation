@@ -69,4 +69,4 @@ cargo_test = custom_target(
   ]
 )
 
-test('unit tests', cargo_bin, args: ['test'], depends: cargo_test)
+test('unit tests', cargo_bin, args: ['test', '--', '--nocapture'], depends: cargo_test)

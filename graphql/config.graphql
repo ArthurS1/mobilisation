@@ -1,0 +1,9 @@
+query ConfigQuery {
+  config {
+    version
+    eventCategories {
+      id
+      label
+    }
+  }
+}

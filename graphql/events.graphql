@@ -1,0 +1,33 @@
+query SearchEventsQuery {
+  searchEvents(
+    bbox: null
+    beginsOn: null
+    boostLanguages: []
+    category: null
+    categoryOneOf: []
+    endsOn: null
+    languageOneOf: []
+    limit: 10
+    location: null
+    longEvents: true
+    page: 1
+    radius: 50
+    searchTarget: INTERNAL
+    sortBy: MATCH_DESC
+    statusOneOf: []
+    tags: null
+    term: ""
+    type: IN_PERSON
+    zoom: 1
+  ) {
+    elements {
+      __typename
+      picture{
+        __typename
+        url
+      }
+      title
+    }
+    total
+  }
+}

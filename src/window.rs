@@ -21,6 +21,7 @@
 use gtk::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::{gio, glib};
+use crate::domain;
 
 mod imp {
     use super::*;
@@ -49,7 +50,19 @@ mod imp {
     }
 
     impl ObjectImpl for MobilisationWindow {}
-    impl WidgetImpl for MobilisationWindow {}
+    impl WidgetImpl for MobilisationWindow {
+      fn show(&self) {
+        self.parent_show();
+        println!("Hey this works ?");
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        println!("Created a runtime ?");
+        rt.block_on(async {
+            let a = domain::fetch_config("https://mobilizon.fr/api").await;
+            let _ = a.map(|e| println!("{:?} {:?}", e.0, e.1));
+            println!("received something");
+        })
+      }
+    }
     impl WindowImpl for MobilisationWindow {}
     impl ApplicationWindowImpl for MobilisationWindow {}
     impl AdwApplicationWindowImpl for MobilisationWindow {}
@@ -57,7 +70,8 @@ mod imp {
 
 glib::wrapper! {
     pub struct MobilisationWindow(ObjectSubclass<imp::MobilisationWindow>)
-        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,        @implements gio::ActionGroup, gio::ActionMap;
+        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
+        @implements gio::ActionGroup, gio::ActionMap;
 }
 
 impl MobilisationWindow {

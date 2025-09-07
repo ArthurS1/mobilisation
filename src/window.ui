@@ -6,47 +6,56 @@
     <property name="title" translatable="yes">Mobilisation</property>
     <property name="default-width">800</property>
     <property name="default-height">600</property>
-
-      <!--
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 400sp</condition>
+        <setter object="split_view" property="collapsed">True</setter>
+      </object>
+    </child>
+    <property name="content">
       <object class="AdwToolbarView">
+        <property name="top-bar-style">flat</property>
+
         <child type="top">
-          <object class="GtkBox">
-            <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
-            <child>
-              <object class="AdwHeaderBar">
-                <property name="title-widget">
-                  <object class="AdwWindowTitle">
-                    <property name="title">Content</property>
-                  </object>
-                </property>
+          <object class="AdwHeaderBar">
+            <child type="start">
+              <object class="GtkToggleButton" id="show_sidebar_button">
+                <property name="icon-name">sidebar-show-symbolic</property>
+                <property name="active">True</property>
               </object>
             </child>
           </object>
         </child>
-      </object>
-         -->
+
         <property name="content">
-          <object class="AdwNavigationSplitView" id="split_view">
+          <object class="AdwOverlaySplitView" id="split_view">
+            <property name="show-sidebar"
+              bind-source="show_sidebar_button"
+              bind-property="active"
+              bind-flags="sync-create|bidirectional"/>
+
+            <!-- Side bar -->
             <property name="sidebar">
-              <object class="AdwNavigationPage">
-                <property name="title" translatable="yes">Sidebar</property>
-                <property name="child">
-                  <object class="GtkLabel">
-                    <property name="label">Sidebar</property>
-                  </object>
-                </property>
+              <object class="GtkListView" id="list_view">
+                <style>
+                  <class name="navigation-sidebar"/>
+                </style>
               </object>
             </property>
+
+            <!-- Content view -->
             <property name="content">
-              <object class="AdwNavigationPage">
-                <property name="title" translatable="yes">Content</property>
-                <property name="child">
-                </property>
+              <object class="GtkLabel">
+                <property name="label">Content</property>
+                <style>
+                  <class name="title-1"/>
+                </style>
               </object>
             </property>
           </object>
         </property>
-
+      </object>
+    </property>
   </template>
   <menu id="primary_menu">
     <section>
