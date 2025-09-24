@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="MobilisationSidebarHeader" parent="GtkListBoxRow">
+    <property name="activatable">false</property>
+    <property name="focusable">false</property>
+    <property name="selectable">false</property>
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkImage" id="icon">
+            <property name="resource">/space/soulie/mobilisation/data/icons/tennis-symbolic.svg</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="label">Categories</property>
+            <property name="margin-start">10em</property>
+            <style>
+              <class name="heading"></class>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="MobilisationSidebar" parent="GtkBox">
+    <child>
+      <object class="AdwToolbarView">
+        <!-- HeaderBar -->
+        <child type="top">
+          <object class="AdwHeaderBar"/>
+        </child>
+        <!-- Content -->
+        <property name="content">
+          <object class="GtkScrolledWindow">
+            <property name="min-content-width">50em</property>
+            <child>
+              <object class="GtkBox">
+                <!-- Loading state -->
+                <child>
+                  <object class="AdwSpinner" id="spinner">
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="hexpand">true</property>
+                    <property name="vexpand">true</property>
+                    <property name="width-request">48</property>
+                    <property name="height-request">48</property>
+                  </object>
+                </child>
+                <!-- Error state -->
+                <child>
+                  <object class="AdwStatusPage" id="error">
+                    <property name="hexpand">true</property>
+                    <property name="vexpand">true</property>
+                    <property name="title">Error</property>
+                    <property name="icon-name">network-error</property>
+                    <property name="description">Check your internet.</property>
+                    <property name="visible">false</property>
+                    <style>
+                      <class name="compact"/>
+                    </style>
+                  </object>
+                </child>
+                <!-- Loaded state -->
+                <child>
+                  <object class="GtkBox" id="content">
+                    <property name="margin-start">10em</property>
+                    <property name="margin-end">10em</property>
+                    <property name="orientation">vertical</property>
+                    <property name="hexpand">true</property>
+                    <property name="halign">fill</property>
+                    <property name="visible">false</property>
+                    <!-- Categories -->
+                    <child>
+                      <object class="MobilisationSidebarHeader">
+                        <property name="title">Categories</property>
+                        <property name="icon_resource">/space/soulie/mobilisation/data/icons/tennis-symbolic.svg</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkListBox" id="category_list">
+                        <style>
+                          <class name="navigation-sidebar"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="MobilisationSidebarHeader">
+                        <property name="title">Languages</property>
+                        <property name="icon_resource">/space/soulie/mobilisation/data/icons/language-symbolic.svg</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkListBox" id="language_list">
+                        <style>
+                          <class name="navigation-sidebar"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="MobilisationSidebarHeader">
+                        <property name="title">Status</property>
+                        <property name="icon_resource">/space/soulie/mobilisation/data/icons/check-round-outline2-symbolic.svg</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkListBox" id="status_list">
+                        <style>
+                          <class name="navigation-sidebar"/>
+                        </style>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="navigation-sidebar"/>
+                    </style>
+                  </object>
+                  </child>
+                </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+  </template>
+</interface>
+

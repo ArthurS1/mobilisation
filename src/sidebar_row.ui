@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="MobilisationSidebarRow" parent="GtkListBoxRow">
+    <child>
+      <object class="GtkLabel" id="row_label">
+        <property name="ellipsize">end</property>
+        <property name="label">Category</property>
+        <property name="halign">start</property>
+        <property name="margin-start">15em</property>
+        <property name="margin-end">15em</property>
+        <style>
+          <class name="body"/>
+        </style>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -6,23 +6,24 @@ use url::Url;
 /////////////////////////////////This is the domain part////////////////////////
 #[derive(Debug)]
 pub struct Category {
-    id: String,
-    label: String,
+    pub id: String,
+    pub label: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Event {
-    title: String,
-    picture_url: Url,
+    pub title: String,
+    pub picture_url: Option<Url>,
+}
+
+#[derive(Debug, Default)]
+pub struct InstanceVersion {
+    pub major: i32,
+    pub minor: i32,
+    pub patch: i32,
 }
 
 #[derive(Debug)]
-pub struct InstanceVersion {
-    major: i32,
-    minor: i32,
-    patch: i32,
-}
-
 pub enum InstanceVersionParsingError {
     ParseIntError(ParseIntError),
     LengthError(),
@@ -109,7 +110,7 @@ pub async fn fetch_events(
                     } => Url::from_str(u.as_str()).map_err(|_| EventsFetchError::Other("Not a valid URL".to_string())).and_then(|e| {
                         Ok(Event {
                             title: t,
-                            picture_url: e,
+                            picture_url: Some(e),
                         })
                     }),
                     search_events_query::SearchEventsQuerySearchEventsElements {
@@ -132,19 +133,31 @@ pub async fn fetch_events(
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "graphql/schema.json",
-    query_path = "graphql/config.graphql"
+    query_path = "graphql/config.graphql",
+    response_derives = "Clone"
 )]
 struct ConfigQuery;
 
+#[derive(Debug)]
 pub enum ConfigFetchError {
     HttpError(Box<reqwest::Error>),
     InstanceVersionParsingError(InstanceVersionParsingError),
+    MissingField(String),
     OtherError(String),
+}
+
+type Language = String;
+
+#[derive(Default)]
+pub struct FetchConfigResponse {
+    pub instance_version: InstanceVersion,
+    pub categories: Vec<Category>,
+    pub languages: Vec<Language>
 }
 
 pub async fn fetch_config(
     graphql_url: &str,
-) -> Result<(InstanceVersion, Vec<Category>), ConfigFetchError> {
+) -> Result<FetchConfigResponse, ConfigFetchError> {
     // This can be moved later
     let client = reqwest::Client::new();
 
@@ -174,13 +187,14 @@ pub async fn fetch_config(
         .map_err(|err| ConfigFetchError::InstanceVersionParsingError(err))?;
     let categories = response_body
         .data
-        .and_then(|data| data.config)
-        .and_then(|config| config.event_categories)
+        .as_ref()
+        .and_then(|data| data.config.as_ref())
+        .and_then(|config| config.event_categories.clone())
         .ok_or(ConfigFetchError::OtherError(
             "Failed to get categories.".to_string(),
         ))?
         .into_iter()
-        .collect::<Option<Vec<_>>>()
+        .collect::<Option<Vec<config_query::ConfigQueryConfigEventCategories>>>()
         .ok_or(ConfigFetchError::OtherError(
             "A category is null.".to_string(),
         ))?
@@ -198,7 +212,22 @@ pub async fn fetch_config(
             })
         })
         .collect::<Result<Vec<Category>, ConfigFetchError>>()?;
-    Ok((instance_version, categories))
+    let languages = response_body
+        .data
+        .as_ref()
+        .and_then(|data| data.config.as_ref())
+        .and_then(|config| config.languages.clone())
+        .map(|e|
+            e.into_iter()
+            .flatten()
+            .collect::<Vec<Language>>()
+        )
+        .ok_or(ConfigFetchError::MissingField("languages".to_string()))?;
+    Ok(FetchConfigResponse {
+        instance_version: instance_version,
+        categories: categories,
+        languages: languages
+    })
 }
 
 ////////////////////////////////Testing/////////////////////////////////////////

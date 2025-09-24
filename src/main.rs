@@ -18,18 +18,35 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-mod domain;
 mod application;
 mod config;
+mod domain;
+mod sidebar;
+mod sidebar_header;
+mod sidebar_row;
 mod window;
+mod event_preview_model;
+mod event_preview;
 
 use self::application::MobilisationApplication;
 use self::window::MobilisationWindow;
 
 use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
-use gtk::{gio, glib};
 use gtk::prelude::*;
+use gtk::{gio, glib};
+use std::sync::OnceLock;
+use tokio::runtime::Runtime;
+
+fn runtime() -> &'static Runtime {
+    static RUNTIME: OnceLock<Runtime> = OnceLock::new();
+    RUNTIME.get_or_init(|| Runtime::new().expect("Failed to start tokio runtime"))
+}
+
+fn http_client() -> &'static reqwest::Client {
+    static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+    HTTP_CLIENT.get_or_init(|| reqwest::Client::new())
+}
 
 fn main() -> glib::ExitCode {
     // Set up gettext translations
@@ -46,7 +63,11 @@ fn main() -> glib::ExitCode {
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.
-    let app = MobilisationApplication::new("space.soulie.mobilisation", &gio::ApplicationFlags::empty());
+    let app =
+        MobilisationApplication::new("space.soulie.mobilisation", &gio::ApplicationFlags::empty());
+
+    // Registering because it is no used (yet) in any CompositeTemplates
+    sidebar_header::MobilisationSidebarHeader::static_type();
 
     // Run the application. This function will block until the application
     // exits. Upon return, we have our exit code to return to the shell. (This

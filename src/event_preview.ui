@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="MobilisationEventPreview" parent="GtkBox">
+    <property name="spacing">20</property>
+    <child>
+      <object class="GtkLabel" id="time">
+        <property name="label">17:48</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-end">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-top">20</property>
+        <property name="margin-bottom">20</property>
+        <child>
+          <object class="GtkLabel" id="event_name">
+            <property name="label">Event Name</property>
+            <property name="halign">start</property>
+            <style>
+              <class name="title-1"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="event_description">
+            <property name="halign">start</property>
+            <property name="label">This is a very long or very short description of the event I need to see if it wraps</property>
+          </object>
+        </child>
+        <style>
+          <class name="card"/>
+        </style>
+      </object>
+    </child>
+  </template>
+</interface>
