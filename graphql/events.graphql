@@ -1,27 +1,18 @@
-query SearchEventsQuery {
+query SearchEventsQuery($beginsOn: DateTime!) {
   searchEvents(
-    bbox: null
-    beginsOn: null
-    boostLanguages: []
-    category: null
-    categoryOneOf: []
-    endsOn: null
-    languageOneOf: []
-    limit: 10
-    location: null
-    longEvents: true
+    beginsOn: $beginsOn
+    limit: 50
+    longEvents: false
     page: 1
-    radius: 50
     searchTarget: INTERNAL
-    sortBy: MATCH_DESC
-    statusOneOf: []
-    tags: null
+    sortBy: START_TIME_ASC
     term: ""
-    type: IN_PERSON
-    zoom: 1
   ) {
     elements {
       __typename
+      uuid
+      beginsOn
+      endsOn
       picture{
         __typename
         url

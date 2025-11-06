@@ -20,11 +20,13 @@
 
 mod application;
 mod config;
-mod domain;
+mod presentation;
 mod sidebar;
 mod sidebar_header;
 mod sidebar_row;
 mod window;
+mod infra;
+mod core;
 mod event_preview_model;
 mod event_preview;
 

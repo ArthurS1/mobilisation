@@ -21,12 +21,15 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
-use crate::domain;
-use crate::http_client;
-use crate::runtime;
-use crate::sidebar::MobilisationSidebar;
-use crate::event_preview_model::MobilisationEventPreviewModel;
 use crate::event_preview::MobilisationEventPreview;
+use crate::event_preview_model::MobilisationEventPreviewModel;
+use crate::sidebar::MobilisationSidebar;
+
+use crate::core::event::Event;
+use crate::http_client;
+use crate::infra::config::fetch_config;
+use crate::infra::events::fetch_events;
+use crate::runtime;
 
 mod imp {
     use super::*;
@@ -63,7 +66,13 @@ mod imp {
         let (sender, receiver) = async_channel::unbounded();
         runtime().spawn(async move {
             let _ = sender
-                .send(domain::fetch_config("https://mobilizon.fr/api").await)
+                .send(
+                    fetch_config(
+                        &url::Url::parse("https://mobilizon.fr/api").unwrap(),
+                        &http_client(),
+                    )
+                    .await,
+                )
                 .await;
         });
         glib::spawn_future_local(glib::clone!(
@@ -76,54 +85,66 @@ mod imp {
                     .map(|value| match value {
                         Ok(v) => sidebar.append_categories(&v.categories),
                         Err(err) => {
-                            glib::g_log!(
-                                glib::LogLevel::Error,
-                                "Error fetching config : {:?}",
-                                err
-                            );
+                            glib::g_log!(glib::LogLevel::Warning, "Error fetching config : {}", err);
                             sidebar.show_error();
                         }
                     })
                     .map_err(|err| {
-                        glib::g_log!(glib::LogLevel::Critical, "Channel error : {}", err);
+                        glib::g_log!(glib::LogLevel::Error, "Channel error : {}", err);
                         sidebar.show_error();
                     })
             }
         ));
     }
 
-    fn create_event_timeline(window: &MobilisationWindow, events: &Vec<domain::Event>) {
-        let event_objects = events
-          .into_iter()
-          .map(|event| MobilisationEventPreviewModel::new(event))
-          .collect::<Vec<MobilisationEventPreviewModel>>();
-        let model = gio::ListStore::new::<MobilisationEventPreviewModel>();
-        model.extend_from_slice(&event_objects);
+    fn create_event_timeline(window: &MobilisationWindow, events: &Vec<Event>) {
+        let models = events
+            .into_iter()
+            .map(|event| MobilisationEventPreviewModel::new(event))
+            .collect::<Vec<MobilisationEventPreviewModel>>();
+        let store = gio::ListStore::new::<MobilisationEventPreviewModel>();
+        store.extend_from_slice(&models);
         let factory = gtk::SignalListItemFactory::new();
         factory.connect_setup(move |_, list_item| {
-          let preview = MobilisationEventPreview::new();
-          list_item
-            .downcast_ref::<gtk::ListItem>()
-            .expect("Could not downcast Object to ListItem.")
-            .set_child(Some(&preview));
+            let preview = MobilisationEventPreview::new();
+            list_item
+                .downcast_ref::<gtk::ListItem>()
+                .expect("Could not downcast Object to ListItem.")
+                .set_child(Some(&preview));
         });
         factory.connect_bind(move |_, list_item| {
-          let model = list_item
-            .downcast_ref::<gtk::ListItem>()
-            .expect("Could not downcast Object to ListItem.")
-            .item()
-            .and_downcast::<MobilisationEventPreviewModel>()
-            .expect("Could not downcast EventPreviewModel from ListItem item.");
-          let event_preview = list_item
-            .downcast_ref::<gtk::ListItem>()
-            .expect("Could not downcast Object to ListItem.")
-            .child()
-            .and_downcast::<MobilisationEventPreview>()
-            .expect("Could not downcast EventPreviewModel from ListItem item.");
-          event_preview.imp().event_name.get().set_label(model.title().as_str());
-          event_preview.imp().event_description.get().set_label("test");
+            let model = list_item
+                .downcast_ref::<gtk::ListItem>()
+                .expect("Could not downcast Object to ListItem.")
+                .item()
+                .and_downcast::<MobilisationEventPreviewModel>()
+                .expect("Could not downcast EventPreviewModel from ListItem item.");
+            let event_preview = list_item
+                .downcast_ref::<gtk::ListItem>()
+                .expect("Could not downcast Object to ListItem.")
+                .child()
+                .and_downcast::<MobilisationEventPreview>()
+                .expect("Could not downcast EventPreviewModel from ListItem item.");
+            // TODO : This should be improved
+            event_preview
+                .imp()
+                .event_name
+                .get()
+                .set_label(model.title().as_str());
+            event_preview
+                .imp()
+                .event_description
+                .get()
+                .set_label(model.description().as_str());
+            event_preview
+                .imp()
+                .time
+                .get()
+                .set_label(model.human_readable_time().as_str());
+            println!("picture replaced for url {:?}", model.picture_url());
+            model.picture_url().map(|v| event_preview.set_picture_url(v));
         });
-        let selection_model = gtk::NoSelection::new(Some(model));
+        let selection_model = gtk::NoSelection::new(Some(store));
         window.event_previews.set_model(Some(&selection_model));
         window.event_previews.set_factory(Some(&factory));
     }
@@ -132,7 +153,7 @@ mod imp {
         let (sender, receiver) = async_channel::unbounded();
         runtime().spawn(async move {
             let _ = sender
-                .send(domain::fetch_events(http_client(), "https://mobilizon.fr/api").await)
+                .send(fetch_events(http_client(), "https://mobilizon.fr/api").await)
                 .await;
         });
         glib::spawn_future_local(glib::clone!(
@@ -142,20 +163,30 @@ mod imp {
                 receiver
                     .recv()
                     .await
-                    .map(|value| {
-                      match value {
-                        Ok((vector, _)) => create_event_timeline(&obj.imp(), &vector),
-                        Err(err) => {
-                            glib::g_log!(
-                                glib::LogLevel::Error,
-                                "Error fetching events : {:?}",
-                                err
-                            );
+                    .map(|value| match value {
+                        Ok((events_with_error, _)) => {
+                            let events = events_with_error
+                                .into_iter()
+                                .filter_map(|event| match event {
+                                    Ok(event) => Some(event),
+                                    Err(err) => {
+                                        glib::g_log!(
+                                            glib::LogLevel::Warning,
+                                            "Error decoding event : {}",
+                                            err
+                                        );
+                                        None
+                                    }
+                                })
+                                .collect();
+                            create_event_timeline(&obj.imp(), &events);
                         }
-                      }
+                        Err(err) => {
+                            glib::g_log!(glib::LogLevel::Warning, "Error fetching events : {}", err);
+                        }
                     })
                     .map_err(|err| {
-                        glib::g_log!(glib::LogLevel::Critical, "Channel error : {}", err);
+                        glib::g_log!(glib::LogLevel::Error, "Channel error : {}", err);
                         obj.imp().sidebar.show_error();
                     })
             }

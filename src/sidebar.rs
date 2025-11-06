@@ -2,7 +2,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::glib;
 
-use crate::domain;
+use crate::core::category::Category;
 use crate::sidebar_row;
 
 mod imp {
@@ -54,8 +54,7 @@ impl MobilisationSidebar {
         self.imp().error.set_visible(true);
     }
 
-    pub fn append_categories(&self, categories: &Vec<domain::Category>) -> () {
-        glib::g_log!(glib::LogLevel::Debug, "Goes there too");
+    pub fn append_categories(&self, categories: &Vec<Category>) -> () {
         self.imp().spinner.set_visible(false);
         self.imp().content.set_visible(true);
         self.imp().error.set_visible(false);
