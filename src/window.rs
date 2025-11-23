@@ -24,6 +24,7 @@ use gtk::{gio, glib};
 use crate::event_preview::MobilisationEventPreview;
 use crate::event_preview_model::MobilisationEventPreviewModel;
 use crate::sidebar::MobilisationSidebar;
+use crate::presentation::preferences::MobilisationPreferences;
 
 use crate::core::event::Event;
 use crate::http_client;
@@ -220,7 +221,7 @@ impl MobilisationWindow {
             .build();
         let a = window.imp();
         // test
-        let dialog = adw::Dialog::new();
+        let dialog = MobilisationPreferences::new();
         dialog.present(Some(&window));
         // end test
         a.sidebar_show
