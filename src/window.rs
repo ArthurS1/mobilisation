@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use adw::subclass::prelude::*;
-use gtk::prelude::*;
+use adw::prelude::*;
 use gtk::{gio, glib};
 
 use crate::event_preview::MobilisationEventPreview;
@@ -219,6 +219,10 @@ impl MobilisationWindow {
             .property("application", application)
             .build();
         let a = window.imp();
+        // test
+        let dialog = adw::Dialog::new();
+        dialog.present(Some(&window));
+        // end test
         a.sidebar_show
             .bind_property("active", &a.split_view.get(), "show_sidebar")
             .bidirectional()
