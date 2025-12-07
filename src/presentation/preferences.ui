@@ -8,8 +8,14 @@
       <object class="AdwPreferencesPage">
         <child>
           <object class="AdwPreferencesGroup">
-            <property name="title">Accounts</property>
+            <property name="title">Instances</property>
             <property name="description">Manage your instances and accounts.</property>
+            <child>
+              <object class="AdwButtonRow">
+                <property name="title">Add Instance</property>
+                <property name="start-icon-name">list-add-symbolic</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
