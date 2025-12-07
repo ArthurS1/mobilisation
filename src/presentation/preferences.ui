@@ -2,6 +2,17 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <requires lib="Adw" version="1.0"/>
-  <template class="MobilisationSidebar" parent="AdwPreferenceDialog">
+  <template class="MobilisationPreferences" parent="AdwPreferencesDialog">
+    <property name="search-enabled">false</property>
+    <child>
+      <object class="AdwPreferencesPage">
+        <child>
+          <object class="AdwPreferencesGroup">
+            <property name="title">Accounts</property>
+            <property name="description">Manage your instances and accounts.</property>
+          </object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>

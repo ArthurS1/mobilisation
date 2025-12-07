@@ -5,7 +5,7 @@ mod imp {
     use super::*;
 
     #[derive(Default, gtk::CompositeTemplate)]
-    #[template(resource = "/space/soulie/mobilisation/sidebar.ui")]
+    #[template(resource = "/space/soulie/mobilisation/presentation/preferences.ui")]
     pub struct MobilisationPreferences {}
 
     #[glib::object_subclass]
