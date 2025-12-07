@@ -142,7 +142,6 @@ mod imp {
                 .time
                 .get()
                 .set_label(model.human_readable_time().as_str());
-            println!("picture replaced for url {:?}", model.picture_url());
             model.picture_url().map(|v| event_preview.set_picture_url(v));
         });
         let selection_model = gtk::NoSelection::new(Some(store));

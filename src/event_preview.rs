@@ -59,9 +59,7 @@ glib::wrapper! {
 impl MobilisationEventPreview {
     pub fn new() -> Self {
         let a = glib::Object::builder::<MobilisationEventPreview>().build();
-                                    println!("object built");
         a.connect_picture_url_notify(|e| {
-                                    println!("picture property modified");
             let x = e.imp();
             match x.picture_url.take() {
                 None => return,
@@ -70,7 +68,6 @@ impl MobilisationEventPreview {
                     let parsed_picture_url = Url::parse(picture_url.as_str())
                         .expect("Failed to parse a normally parsable url.");
                     runtime().spawn(async move {
-                                    println!("fetching");
                         let _ = sender
                             .send(fetch_event_picture(http_client(), &parsed_picture_url).await)
                             .await;
@@ -80,7 +77,6 @@ impl MobilisationEventPreview {
                         x,
                         async move {
                             let _ = receiver.recv().await.map(|v| {
-                                println!("answer received");
                                 let _ = v.map(move |bytes| {
                                     let bytes = glib::Bytes::from(bytes.as_ref());
                                     let texture = gdk::Texture::from_bytes(&bytes).unwrap();
